@@ -1,0 +1,11 @@
+cultivo,kc_ini,kc_med,kc_fin,dias_ini,dias_des,dias_med,dias_fin,ece_umbral_ds_m,boro_categoria,boro_mg_l,rol,estado_verificacion
+maiz,0.30,1.20,0.60,30,40,50,30,1.7,Moderadamente tolerante,2.0-4.0,actual,Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+cebolla,0.70,1.05,0.75,15,25,70,40,1.2,Sensible,0.5-0.75,actual,Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+aji_pimiento,0.60,1.05,0.90,30,35,40,20,1.5,Moderadamente sensible,1.0-2.0,actual,Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+papa,0.50,1.15,0.75,25,30,45,30,1.7,Moderadamente sensible,1.0-2.0,actual,Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+frijol,0.40,1.15,0.35,20,30,40,20,1.0,Sensible,0.75-1.0,mejora suelo (leguminosa),Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+alfalfa,0.40,0.95,0.90,10,30,300,25,2.0,Tolerante,4.0-6.0,mejora suelo (leguminosa perenne),Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+tomate,0.60,1.15,0.80,30,40,45,30,2.5,Tolerante,4.0-6.0,tolerante sal y boro,Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+betarraga,0.50,1.05,0.95,15,25,20,10,4.0,Tolerante,4.0-6.0,tolerante sal y boro,Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+zapallo,0.50,1.00,0.80,20,30,30,20,3.2,Moderadamente tolerante,2.0-4.0,tolerante sal y boro,Boro verificado en FAO-29 tabla 16; Kc y ECe por verificar
+olivo,0.65,0.70,0.70,30,90,155,90,2.7,No listado en FAO-29,,permanente,Kc y ECe por verificar; boro requiere fuente local

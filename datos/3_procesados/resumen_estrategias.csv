@@ -1,0 +1,7 @@
+parcela,estrategia,agua_m3_ha_anio,meses_desnudos,confianza
+P2_nueva_campana,actual,5700,7.1,"Estimado con modelo (NASA POWER + FAO-56); demanda neta, sin eficiencia de riego"
+P2_nueva_campana,mejora_suelo,8584,3.5,"Estimado con modelo (NASA POWER + FAO-56); demanda neta, sin eficiencia de riego"
+P2_nueva_campana,tolerante,8142,4.9,"Estimado con modelo (NASA POWER + FAO-56); demanda neta, sin eficiencia de riego"
+P1_estable_olivo,actual,9257,0.0,"Estimado con modelo (NASA POWER + FAO-56); demanda neta, sin eficiencia de riego"
+P1_estable_olivo,cobertura_leguminosa,9930,0.0,"Estimado con modelo (NASA POWER + FAO-56); demanda neta, sin eficiencia de riego"
+P1_estable_olivo,cobertura_permanente,12837,0.0,"Estimado con modelo (NASA POWER + FAO-56); demanda neta, sin eficiencia de riego"

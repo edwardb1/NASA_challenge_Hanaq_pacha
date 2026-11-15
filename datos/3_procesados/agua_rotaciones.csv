@@ -1,0 +1,11 @@
+parcela,estrategia,cultivo,fecha_siembra,dias,fraccion_area,etc_mm,agua_m3_ha
+P2_nueva_campana,actual,maiz,09-01,150,1.0,570.0,5700
+P2_nueva_campana,mejora_suelo,maiz,09-01,150,1.0,570.0,5700
+P2_nueva_campana,mejora_suelo,frijol,03-01,110,1.0,288.4,2884
+P2_nueva_campana,tolerante,tomate,08-15,145,1.0,547.6,5476
+P2_nueva_campana,tolerante,betarraga,02-01,70,1.0,266.5,2665
+P1_estable_olivo,actual,olivo,07-01,365,1.0,925.7,9257
+P1_estable_olivo,cobertura_leguminosa,olivo,07-01,365,1.0,925.7,9257
+P1_estable_olivo,cobertura_leguminosa,frijol,04-01,110,0.3,67.4,674
+P1_estable_olivo,cobertura_permanente,olivo,07-01,365,1.0,925.7,9257
+P1_estable_olivo,cobertura_permanente,alfalfa,01-01,365,0.3,358.1,3581

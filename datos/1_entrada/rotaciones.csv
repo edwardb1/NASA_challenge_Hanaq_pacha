@@ -1,0 +1,11 @@
+parcela,estrategia,orden,cultivo,fecha_siembra,fraccion_area,nota
+P2_nueva_campana,actual,1,maiz,09-01,1.0,BORRADOR: confirmar con agronomo que se siembra hoy y en que mes
+P2_nueva_campana,mejora_suelo,1,maiz,09-01,1.0,BORRADOR
+P2_nueva_campana,mejora_suelo,2,frijol,03-01,1.0,BORRADOR: leguminosa en el periodo desnudo
+P2_nueva_campana,tolerante,1,tomate,08-15,1.0,BORRADOR
+P2_nueva_campana,tolerante,2,betarraga,02-01,1.0,BORRADOR
+P1_estable_olivo,actual,1,olivo,07-01,1.0,Olivo todo el anio con suelo desnudo entre hileras
+P1_estable_olivo,cobertura_leguminosa,1,olivo,07-01,1.0,BORRADOR
+P1_estable_olivo,cobertura_leguminosa,2,frijol,04-01,0.3,BORRADOR: cobertura entre hileras en 30 % del area
+P1_estable_olivo,cobertura_permanente,1,olivo,07-01,1.0,BORRADOR
+P1_estable_olivo,cobertura_permanente,2,alfalfa,01-01,0.3,BORRADOR: alfalfa entre hileras en 30 % del area

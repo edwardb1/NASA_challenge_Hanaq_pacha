@@ -1,0 +1,4 @@
+parcela,lat,lon,tipo,clase_historia,nota
+P1_estable_olivo,-18.1988,-70.5125,olivo (permanente),verde: estable desde 2001,Bloque denso de olivo. Caso de cobertura entre hileras
+P2_nueva_campana,-18.2156,-70.4632,campana corta,azul: desierto en 2001-2005 y cultivada hoy,Mosaico de chacras pequenas. Caso de comparacion de rotaciones. Confirmar cultivo con la curva de NDVI
+P3_abandonada,-18.2300,-70.5451,sin cultivo hoy,rojo: cultivada antes y desnuda hoy,Sector Chusqui junto a la costa. Evidencia del problema; la causa requiere revision local
