@@ -1,0 +1,227 @@
+{
+ "generado": "2026-11-15 01:19",
+ "pregunta": "Probabilidad de que una parcela en uso quede sin verdor (3 años seguidos) en los próximos 5 años",
+ "definiciones": {
+  "en_uso_ndvi_min": 0.2,
+  "desnudo_ndvi_max": 0.15,
+  "racha_anios": 3,
+  "horizonte_anios": 5
+ },
+ "anios": [
+  2000,
+  2001,
+  2002,
+  2003,
+  2004,
+  2005,
+  2006,
+  2007,
+  2008,
+  2009,
+  2010,
+  2011,
+  2012,
+  2013,
+  2014,
+  2015,
+  2016,
+  2017,
+  2018,
+  2019,
+  2020,
+  2021,
+  2022,
+  2023,
+  2024,
+  2025,
+  2026
+ ],
+ "zona": {
+  "sur": -18.32,
+  "norte": -18.08,
+  "oeste": -70.65,
+  "este": -70.35
+ },
+ "hectareas_por_clase": {
+  "estable": 6152,
+  "en declive": 561,
+  "abandonada": 80,
+  "nueva": 17979
+ },
+ "puntos_en_mar_descartados": {
+  "estable": 0,
+  "en declive": 2,
+  "abandonada": 44,
+  "nueva": 57
+ },
+ "muestra": {
+  "parcelas": 1297,
+  "filas_entrenamiento": 12621,
+  "perdidas": 1256
+ },
+ "validacion": [
+  {
+   "validacion": "hacia adelante (entrena hasta 2008, prueba 2015-2019)",
+   "n_prueba": 3809,
+   "perdidas_prueba": 401,
+   "modelo": "logistica",
+   "auc": 0.88,
+   "pr_auc": 0.1009,
+   "brier": 0.0147
+  },
+  {
+   "validacion": "hacia adelante (entrena hasta 2008, prueba 2015-2019)",
+   "n_prueba": 3809,
+   "perdidas_prueba": 401,
+   "modelo": "boosting",
+   "auc": 0.8556,
+   "pr_auc": 0.2059,
+   "brier": 0.0188
+  },
+  {
+   "validacion": "hacia adelante (entrena hasta 2008, prueba 2015-2019)",
+   "n_prueba": 3809,
+   "perdidas_prueba": 401,
+   "modelo": "regla: caida frente a su maximo",
+   "auc": 0.5776,
+   "pr_auc": 0.0307,
+   "brier": null
+  },
+  {
+   "validacion": "hacia adelante (entrena hasta 2008, prueba 2015-2019)",
+   "n_prueba": 3809,
+   "perdidas_prueba": 401,
+   "modelo": "regla: verdor bajo",
+   "auc": 0.6891,
+   "pr_auc": 0.0324,
+   "brier": null
+  },
+  {
+   "validacion": "espacial (bloques de 2 km, 5 grupos)",
+   "n_prueba": 12621,
+   "perdidas_prueba": 1256,
+   "modelo": "logistica",
+   "auc": 0.8663,
+   "pr_auc": 0.095,
+   "brier": 0.0172
+  },
+  {
+   "validacion": "espacial (bloques de 2 km, 5 grupos)",
+   "n_prueba": 12621,
+   "perdidas_prueba": 1256,
+   "modelo": "boosting",
+   "auc": 0.8518,
+   "pr_auc": 0.0845,
+   "brier": 0.0172
+  },
+  {
+   "validacion": "espacial (bloques de 2 km, 5 grupos)",
+   "n_prueba": 12621,
+   "perdidas_prueba": 1256,
+   "modelo": "regla: caida frente a su maximo",
+   "auc": 0.6029,
+   "pr_auc": 0.0299,
+   "brier": null
+  },
+  {
+   "validacion": "espacial (bloques de 2 km, 5 grupos)",
+   "n_prueba": 12621,
+   "perdidas_prueba": 1256,
+   "modelo": "regla: verdor bajo",
+   "auc": 0.6409,
+   "pr_auc": 0.037,
+   "brier": null
+  }
+ ],
+ "niveles": [
+  {
+   "nivel": "bajo",
+   "desde": 0.0,
+   "hasta": 0.05,
+   "casos": 11086,
+   "se_perdieron_de_cada_100": 1.0,
+   "rango_min": 0.9,
+   "rango_max": 1.2,
+   "repeticiones": 20,
+   "anios_tipicos_hasta_perdida": 3.0
+  },
+  {
+   "nivel": "alerta",
+   "desde": 0.05,
+   "hasta": 1.0,
+   "casos": 1535,
+   "se_perdieron_de_cada_100": 11.0,
+   "rango_min": 8.8,
+   "rango_max": 12.8,
+   "repeticiones": 20,
+   "anios_tipicos_hasta_perdida": 3.0
+  }
+ ],
+ "anticipacion": {
+  "parcelas_perdidas_evaluadas": 435,
+  "con_alerta_previa_pct": 53.6,
+  "con_alerta_2_anios_antes_o_mas_pct": 43.5,
+  "anios_de_anticipacion_mediana": 6.0
+ },
+ "recuperacion": {
+  "parcelas_que_quedaron_sin_verdor": 432,
+  "volvieron_a_estar_en_uso_pct": 27.3
+ },
+ "variables": [
+  {
+   "variable": "variabilidad_5a",
+   "etiqueta": "Inestabilidad de 5 años",
+   "efecto": 0.65,
+   "sentido": "sube el riesgo"
+  },
+  {
+   "variable": "dist_mar_km",
+   "etiqueta": "Distancia al mar",
+   "efecto": -0.531,
+   "sentido": "baja el riesgo"
+  },
+  {
+   "variable": "nivel",
+   "etiqueta": "Verdor actual",
+   "efecto": -0.418,
+   "sentido": "baja el riesgo"
+  },
+  {
+   "variable": "frente_a_su_maximo",
+   "etiqueta": "Verdor frente a su mejor nivel",
+   "efecto": -0.23,
+   "sentido": "baja el riesgo"
+  },
+  {
+   "variable": "pendiente_5a",
+   "etiqueta": "Tendencia de 5 años",
+   "efecto": -0.125,
+   "sentido": "baja el riesgo"
+  }
+ ],
+ "hoy": {
+  "parcelas_por_nivel": {
+   "bajo": 773,
+   "alerta": 55
+  },
+  "hectareas_estimadas_por_nivel": {
+   "bajo": 21954,
+   "alerta": 1550
+  },
+  "estados": {
+   "en uso": 828,
+   "perdida": 329,
+   "en transicion": 138,
+   "recien cultivada": 2
+  }
+ },
+ "limites": [
+  "Cada parcela es un punto de 30 m, no un lindero catastral.",
+  "Se descartaron los puntos de muestra que cayeron en el mar; las hectareas por clase se corrigieron en la misma proporcion.",
+  "El modelo ve la trayectoria del verdor, no la causa (agua, sal, mercado, decisión del agricultor).",
+  "Entrenado solo con La Yarada 2000-2026; las pérdidas pasadas se concentran en pocos sectores.",
+  "Una parcela sin verdor puede volver a cultivarse: es riesgo, no destino.",
+  "El modelo separa dos grupos, riesgo bajo y en alerta. Dentro del grupo en alerta no distingue de forma confiable cuáles están peor.",
+  "Cerca de la mitad de las pérdidas pasadas llegó sin alerta previa."
+ ]
+}

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hanaq Pacha · Riesgo de pérdida de parcelas en La Yarada</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap">
+<style>
+  /* Sistema de diseno "Valle Organico Soleado" */
+  :root {
+    --fondo:#F5F0E6; --tarjeta:#FFFDF9; --linea:#E5DEC9; --sombra:0 8px 24px -4px rgba(58,42,24,.08);
+    --tinta:#232B20; --suave:#5C5749; --metrica:#1E3522;
+    --bosque:#1B301E; --olivo:#2E4F2F; --trigo:#D99B26; --trigo-texto:#8A5E0C;
+    --bajo:#4D7C2B; --bajo-fondo:#EBF3E4; --aviso:#D99B26; --aviso-fondo:#FDF5E2;
+    --alerta:#C84630; --alerta-fondo:#FBEAE7; --perdida:#8C7A6B; --perdida-fondo:#F1ECE4;
+    --campo-borde:#D5CBB4; --campo-fondo:#FAF7F0; --pista:#E2D9C5; --perilla:#3B6628;
+    --titulos:'Plus Jakarta Sans','Outfit',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --cuerpo:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,'Cascadia Mono',Consolas,monospace;
+    /* nombres antiguos, por si algun estilo en linea los usa */
+    --verde:var(--bajo); --rojo:var(--alerta); --gris:var(--perdida); --acento:var(--olivo);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:var(--cuerpo); color:var(--tinta); background:var(--fondo); line-height:1.5; -webkit-font-smoothing:antialiased; }
+  h1, h2, h3 { font-family:var(--titulos); color:var(--tinta); letter-spacing:-.01em; }
+  h2 { font-size:18px; font-weight:700; margin:0 0 10px; } h3 { font-size:15px; font-weight:700; margin:18px 0 8px; }
+  p { margin:8px 0; }
+
+  header { position:relative; color:#fff; padding:18px 24px 17px; border-bottom:3px solid var(--trigo);
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.035) 0 2px, transparent 2px 15px),
+      radial-gradient(900px 220px at 88% -40%, rgba(217,155,38,.30), transparent 70%),
+      linear-gradient(135deg, var(--bosque), var(--olivo)); }
+  header h1 { margin:0; font-size:23px; font-weight:800; color:#fff; display:flex; align-items:center; gap:10px; }
+  header h1::before { content:""; width:26px; height:26px; flex:none; border-radius:50% 50% 50% 6px; transform:rotate(-8deg);
+    background:radial-gradient(circle at 68% 30%, #8CB342 0 34%, #4B7526 35% 68%, #264017 69%); box-shadow:0 0 0 2px rgba(255,255,255,.16); }
+  header p { margin:4px 0 0; font-size:14px; color:#E4E9D6; }
+
+  nav { display:flex; gap:6px; padding:8px 18px 0; background:var(--tarjeta); border-bottom:1px solid var(--linea); position:sticky; top:0; z-index:1000;
+        box-shadow:0 4px 14px -8px rgba(58,42,24,.18); overflow-x:auto; }
+  nav button { border:0; background:none; padding:10px 16px 11px; font:600 15px var(--titulos); cursor:pointer; color:var(--suave);
+               border-bottom:3px solid transparent; border-radius:10px 10px 0 0; white-space:nowrap; transition:background .15s, color .15s; }
+  nav button:hover { background:var(--campo-fondo); color:var(--tinta); }
+  nav button.activo { color:var(--metrica); border-bottom-color:var(--trigo); background:var(--aviso-fondo); }
+
+  main { max-width:1280px; margin:0 auto; padding:18px; }
+  section { display:none; } section.activo { display:block; }
+
+  .kpis { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+  @media (max-width:900px) { .kpis { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media (max-width:460px) { .kpis { grid-template-columns:1fr; } }
+  .kpi { background:var(--tarjeta); border:1px solid var(--linea); border-top:4px solid var(--bajo); border-radius:14px; padding:12px 14px 13px; box-shadow:var(--sombra); }
+  .kpi.k-perdida { border-top-color:var(--perdida); } .kpi.k-aviso { border-top-color:var(--aviso); } .kpi.k-alerta { border-top-color:var(--alerta); }
+  .kpi b { display:block; font:700 24px/1.2 var(--titulos); color:var(--metrica); letter-spacing:-.02em; }
+  .kpi span { font-size:13px; color:var(--suave); display:block; line-height:1.35; margin-top:2px; }
+  .kpi small { display:block; font:700 12px var(--titulos); text-transform:uppercase; letter-spacing:.05em; color:var(--suave); margin-bottom:2px; }
+  .kpi-titulo { grid-column:1 / -1; margin:0 0 2px; font-size:14px; color:var(--suave); } .kpi-titulo b { color:var(--tinta); font-family:var(--titulos); }
+
+  .dos { display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:16px; align-items:start; }
+  @media (max-width:860px) { .dos { grid-template-columns:1fr; } }
+  .tarjeta { background:var(--tarjeta); border:1px solid var(--linea); border-radius:14px; padding:18px; box-shadow:var(--sombra); }
+  #mapa { height:520px; border-radius:14px; border:1px solid var(--linea); box-shadow:var(--sombra); background:#DDD3BC; }
+
+  .filtros { display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin:0 0 10px; font-size:14px; }
+  .filtros label { display:inline-flex; align-items:center; gap:6px; cursor:pointer; padding:5px 11px; border-radius:999px;
+                   background:var(--tarjeta); border:1px solid var(--linea); color:var(--tinta); }
+  .filtros label:hover { border-color:var(--campo-borde); background:var(--campo-fondo); }
+  input[type=checkbox] { accent-color:var(--bajo); width:15px; height:15px; margin:0; }
+  .cuadro { width:11px; height:11px; border-radius:3px; display:inline-block; margin-left:8px; vertical-align:-1px; }
+  .punto { width:11px; height:11px; border-radius:50%; display:inline-block; border:1.5px solid #fff; box-shadow:0 0 0 1px rgba(58,42,24,.28); vertical-align:-1px; }
+
+  .insignia { display:inline-flex; align-items:center; gap:7px; padding:4px 12px; border-radius:999px; font:700 13px var(--titulos); border:1px solid transparent; }
+  .insignia::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; }
+  .i-bajo { color:#3C6420; background:var(--bajo-fondo); border-color:#CFE0C0; }
+  .i-transicion { color:var(--trigo-texto); background:var(--aviso-fondo); border-color:#F0DCA8; }
+  .i-alerta { color:#A5351F; background:var(--alerta-fondo); border-color:#F0C9C1; }
+  .i-perdida { color:#6B5B4E; background:var(--perdida-fondo); border-color:#DDD3C6; }
+
+  .hechos { display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:15px; margin:12px 0; font-weight:600; color:var(--metrica); }
+  .hechos > div { background:var(--campo-fondo); border:1px solid var(--linea); border-radius:10px; padding:8px 10px; }
+  .hechos span { color:var(--suave); display:block; font-size:12px; font-weight:400; }
+  .nota { font-size:13px; color:var(--suave); }
+  .nota b { color:var(--tinta); font-weight:600; }
+  #campo { width:100%; display:block; border-radius:14px; margin-top:10px; background:#D9C39A;
+           box-shadow:0 0 0 1px var(--linea), var(--sombra); }
+  #leyenda-campo { background:var(--campo-fondo); border:1px dashed var(--campo-borde); border-radius:10px; padding:8px 10px; }
+
+  button.accion { background:var(--perilla); color:#fff; border:0; border-radius:10px; padding:10px 16px; font:600 14px var(--titulos); cursor:pointer;
+                  box-shadow:0 4px 12px -4px rgba(59,102,40,.55); transition:background .15s, transform .1s; margin-top:6px; }
+  button.accion:hover { background:var(--bajo); } button.accion:active { transform:translateY(1px); }
+
+  .control { margin:12px 0; }
+  .control label { display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:14px; font-weight:500; margin-bottom:5px; }
+  .control label b { font:600 14px var(--mono); color:var(--metrica); background:var(--bajo-fondo); border-radius:6px; padding:1px 7px; white-space:nowrap; }
+  select { width:100%; padding:9px 34px 9px 11px; font:500 14px var(--cuerpo); color:var(--tinta); border:1px solid var(--campo-borde); border-radius:10px;
+           background:var(--campo-fondo) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%235C5749' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+           -webkit-appearance:none; appearance:none; cursor:pointer; transition:border-color .15s, box-shadow .15s; }
+  select:hover { border-color:#BFB294; }
+  select:focus, select:focus-visible { outline:none; border-color:var(--bajo); box-shadow:0 0 0 3px rgba(77,124,43,.22); }
+  .filtros select { padding:3px 28px 3px 8px; border-radius:8px; }
+
+  /* Deslizadores: pista color tierra y perilla verde. --p es el avance (lo pone app.js) */
+  input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:22px; background:transparent; cursor:pointer; margin:0; --p:50%; }
+  input[type=range]:focus { outline:none; }
+  input[type=range]::-webkit-slider-runnable-track { height:8px; border-radius:999px;
+    background:linear-gradient(90deg, var(--bajo) 0, var(--trigo) var(--p), var(--pista) var(--p)); box-shadow:inset 0 1px 2px rgba(58,42,24,.18); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:20px; height:20px; margin-top:-6px; border-radius:50%;
+    background:var(--perilla); border:3px solid #fff; box-shadow:0 2px 6px rgba(58,42,24,.35); transition:transform .1s; }
+  input[type=range]:hover::-webkit-slider-thumb { transform:scale(1.1); }
+  input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow:0 0 0 4px rgba(77,124,43,.3), 0 2px 6px rgba(58,42,24,.35); }
+  input[type=range]::-moz-range-track { height:8px; border-radius:999px; background:var(--pista); box-shadow:inset 0 1px 2px rgba(58,42,24,.18); }
+  input[type=range]::-moz-range-progress { height:8px; border-radius:999px; background:linear-gradient(90deg, var(--bajo), var(--trigo)); }
+  input[type=range]::-moz-range-thumb { width:14px; height:14px; border-radius:50%; background:var(--perilla); border:3px solid #fff; box-shadow:0 2px 6px rgba(58,42,24,.35); }
+  input[type=range]:focus-visible::-moz-range-thumb { box-shadow:0 0 0 4px rgba(77,124,43,.3), 0 2px 6px rgba(58,42,24,.35); }
+
+  .indice { font:800 56px/1 var(--titulos); letter-spacing:-.03em; color:var(--bajo); }
+  .barra { height:9px; background:var(--pista); border-radius:999px; overflow:hidden; margin-top:4px; }
+  .barra i { display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, #3B6628, #6FA13A); }
+  .medidas { display:grid; grid-template-columns:repeat(auto-fit,minmax(135px,1fr)); gap:8px; margin:12px 0; font-size:14px; }
+  .medidas > div { background:var(--campo-fondo); border:1px solid var(--linea); border-radius:10px; padding:8px 10px; }
+  .medidas b { display:block; font:700 19px var(--titulos); color:var(--metrica); } .medidas span { color:var(--suave); font-size:12px; }
+  ul.avisos { margin:10px 0; padding:0; list-style:none; font-size:14px; }
+  ul.avisos li { margin:6px 0; padding:8px 10px 8px 12px; background:var(--aviso-fondo); border-left:4px solid var(--trigo); border-radius:0 10px 10px 0; }
+
+  table { width:100%; border-collapse:collapse; font-size:14px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--linea); }
+  th { font:600 12px var(--titulos); color:var(--suave); text-transform:uppercase; letter-spacing:.04em; border-bottom:2px solid var(--linea); }
+  tr:nth-child(odd) td { background:var(--campo-fondo); }
+  td.num, th.num { text-align:right; } td.num { font:500 13px var(--mono); color:var(--metrica); font-variant-numeric:tabular-nums; }
+  tr.sel td { background:var(--bajo-fondo); font-weight:700; color:var(--metrica); }
+  tr.sel td:first-child { box-shadow:inset 4px 0 0 var(--bajo); }
+
+  /* Ficha de parcela: granjero, diagnostico y medidas */
+  .diagnostico { display:flex; gap:14px; align-items:flex-start; }
+  .diagnostico h2 { margin:8px 0 4px; font-size:20px; line-height:1.25; } .diagnostico p { margin:4px 0 0; font-size:14.5px; }
+  .granjero { width:104px; height:auto; flex:none; filter:drop-shadow(0 4px 8px rgba(58,42,24,.14)); }
+  .granjero .cuerpo { transform-origin:60px 124px; animation:saludo 3.2s ease-in-out infinite; }
+  .g-preocupado .cuerpo, .g-triste .cuerpo { animation-name:duda; }
+  @keyframes saludo { 0%,100% { transform:translateY(0) rotate(0); } 50% { transform:translateY(-2.5px) rotate(1.2deg); } }
+  @keyframes duda { 0%,100% { transform:rotate(-1.4deg); } 50% { transform:rotate(1.4deg); } }
+  @media (prefers-reduced-motion: reduce) { .granjero .cuerpo { animation:none; } }
+  .medida, .riesgo { margin:12px 0 0; padding:10px 12px; border-radius:12px; font-size:14px; border:1px solid var(--linea); background:var(--campo-fondo); }
+  .medida span, .riesgo span { display:block; font:700 12px var(--titulos); text-transform:uppercase; letter-spacing:.04em; color:var(--suave); margin-bottom:3px; }
+  .medida { border-left:4px solid var(--bajo); }
+  .m-bajo { background:var(--bajo-fondo); border-color:#CFE0C0; border-left-color:var(--bajo); }
+  .m-transicion { background:var(--aviso-fondo); border-color:#F0DCA8; border-left-color:var(--aviso); }
+  .m-alerta { background:var(--alerta-fondo); border-color:#F0C9C1; border-left-color:var(--alerta); }
+  .m-perdida { background:var(--perdida-fondo); border-color:#DDD3C6; border-left-color:var(--perdida); }
+  .contexto { margin:4px 0 12px; padding:10px 12px; border-radius:12px; font-size:14px; background:var(--aviso-fondo); border:1px solid #F0DCA8; border-left:4px solid var(--trigo); }
+  .contexto button { margin-left:6px; border:1px solid var(--campo-borde); background:var(--tarjeta); border-radius:8px; padding:2px 9px; font:600 12px var(--cuerpo); color:var(--suave); cursor:pointer; }
+  details.base { margin-top:14px; border:1px solid var(--linea); border-radius:12px; background:var(--campo-fondo); padding:0 12px; font-size:14px; }
+  details.base summary { cursor:pointer; padding:10px 0; font:700 14px var(--titulos); color:var(--metrica); }
+  details.base ul { margin:0 0 6px; padding-left:18px; } details.base li { margin:5px 0; }
+  @media (max-width:480px) { .diagnostico { flex-direction:column; align-items:center; text-align:center; } .granjero { width:92px; } }
+  /* Que me conviene: prioridades, tres caminos y recomendacion */
+  .plan { margin-top:16px; }
+  .plan h3 { display:flex; align-items:center; gap:8px; margin-top:22px; }
+  .paso { width:24px; height:24px; border-radius:50%; background:var(--olivo); color:#fff; font:700 13px var(--titulos); display:inline-flex; align-items:center; justify-content:center; flex:none; }
+  .prioridades { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:8px 0 12px; }
+  @media (max-width:640px) { .prioridades { grid-template-columns:1fr; } }
+  .prioridad { position:relative; text-align:left; cursor:pointer; padding:12px 12px 12px 14px; border-radius:14px; border:1.5px solid var(--campo-borde); background:var(--campo-fondo);
+               color:var(--tinta); font-family:var(--cuerpo); transition:border-color .15s, background .15s, transform .1s, box-shadow .15s; }
+  .prioridad:hover { border-color:var(--bajo); transform:translateY(-1px); }
+  .prioridad svg { width:26px; height:26px; fill:var(--perdida); display:block; margin-bottom:6px; color:var(--perdida); }
+  .prioridad b { display:block; font:700 15px var(--titulos); } .prioridad small { display:block; font-size:12.5px; color:var(--suave); margin-top:1px; }
+  .prioridad .orden { position:absolute; top:10px; right:10px; }
+  .prioridad.activa { border-color:var(--bajo); background:var(--bajo-fondo); box-shadow:0 6px 16px -8px rgba(77,124,43,.55); }
+  .prioridad.activa svg { fill:var(--bajo); color:var(--bajo); }
+  .orden { display:inline-flex; align-items:center; justify-content:center; min-width:26px; height:22px; padding:0 6px; border-radius:999px; font:700 12px var(--titulos);
+           background:var(--pista); color:var(--suave); }
+  .activa .orden, td .orden { background:var(--trigo); color:#2B1C00; }
+  .rodar { overflow-x:auto; }
+  .plan input[type=number] { width:100%; min-width:84px; padding:6px 8px; font:500 13px var(--mono); text-align:right; color:var(--tinta); border:1px solid var(--campo-borde); border-radius:8px; background:var(--tarjeta); }
+  .plan input[type=number]:focus { outline:none; border-color:var(--bajo); box-shadow:0 0 0 3px rgba(77,124,43,.22); }
+  .plan td select { padding:6px 28px 6px 8px; border-radius:8px; min-width:92px; }
+  table.caminos { min-width:560px; } table.caminos th { text-transform:none; letter-spacing:0; font-size:14px; color:var(--tinta); vertical-align:bottom; }
+  table.caminos th small, table.caminos td small { display:block; font:500 11.5px var(--cuerpo); color:var(--suave); text-transform:none; letter-spacing:0; }
+  table.caminos th em { display:block; font:600 11.5px var(--cuerpo); color:#A5351F; font-style:normal; margin-top:2px; }
+  table.caminos td { vertical-align:top; } table.caminos td b { font:700 14px var(--titulos); color:var(--metrica); }
+  table.caminos td b small { display:inline; font-weight:500; }
+  table.caminos td:first-child { font-weight:600; white-space:nowrap; }
+  table.caminos th.elegida, table.caminos td.elegida { background:var(--bajo-fondo); }
+  table.caminos th.elegida { box-shadow:inset 0 4px 0 var(--bajo); border-radius:10px 10px 0 0; } table.caminos th.elegida small { color:#3C6420; font-weight:700; }
+  table.caminos tr.apagada td { color:var(--suave); } table.caminos tr.apagada td b { color:var(--suave); font-weight:600; }
+  .barra.tenue i { background:#C9BFA8; }
+  table.caminos td small.pts { font:500 11.5px var(--mono); margin-top:2px; }
+  table.caminos tr.total td b.fuera { color:var(--perdida); text-decoration:line-through; text-decoration-thickness:2px; }
+  table.caminos tr.total td b.fuera + small { color:#A5351F; white-space:normal; }
+  .cuentas { margin-top:10px; padding:12px 16px; border:1px solid var(--linea); border-radius:12px; background:var(--campo-fondo); font-size:14px; }
+  .cuentas h4 { font:700 15px var(--titulos); margin:0 0 6px; color:var(--metrica); }
+  .cuentas ol { margin:0; padding-left:20px; } .cuentas ol > li { margin:7px 0; } .cuentas ul { margin:4px 0; padding-left:18px; } .cuentas ul li { margin:3px 0; }
+  .cuentas em { font-style:normal; color:#A5351F; } .cuentas p { margin:10px 0 0; }
+  table.caminos tr.total td { border-top:2px solid var(--linea); border-bottom:0; } table.caminos tr.total td b { font-size:22px; }
+  .reco { border:1px solid #CFE0C0; border-left:5px solid var(--bajo); background:var(--bajo-fondo); border-radius:14px; padding:14px 16px; }
+  .reco.sin { border-color:#F0C9C1; border-left-color:var(--alerta); background:var(--alerta-fondo); }
+  .reco > span { font:700 12px var(--titulos); text-transform:uppercase; letter-spacing:.05em; color:#3C6420; } .reco.sin > span { color:#A5351F; }
+  .reco h3 { display:block; margin:2px 0 4px; font-size:21px; } .reco h4 { font:700 14px var(--titulos); margin:12px 0 4px; color:var(--metrica); }
+  .reco ul, .otras ul { margin:4px 0; padding-left:18px; font-size:14px; } .reco li, .otras li { margin:4px 0; }
+  .otras { margin-top:10px; padding:10px 14px; border:1px solid var(--linea); border-radius:12px; background:var(--campo-fondo); font-size:14px; }
+  .vacio { padding:16px; border:1.5px dashed var(--campo-borde); border-radius:12px; color:var(--suave); background:var(--campo-fondo); text-align:center; }
+  .error { background:var(--alerta-fondo); color:#8A2A18; border:1px solid #F0C9C1; padding:12px 14px; border-radius:12px; margin:12px 0; display:none; }
+  :focus-visible { outline:2px solid var(--bajo); outline-offset:2px; }
+  @media (max-width:560px) { header { padding:14px 16px; } main { padding:12px; } .tarjeta { padding:14px; } .indice { font-size:46px; } #mapa { height:420px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Hanaq Pacha</h1>
+  <p>¿Mi parcela puede perderse? 26 años de satélites de la NASA sobre La Yarada, Tacna.</p>
+</header>
+<nav>
+  <button data-tab="mapa" class="activo">Mapa y riesgo</button>
+  <button data-tab="simulador">Simulador de parcela</button>
+  <button data-tab="datos">Datos y límites</button>
+</nav>
+<main>
+  <div class="error" id="error"></div>
+
+  <section id="tab-mapa" class="activo">
+    <div class="kpis" id="kpis"></div>
+    <div class="dos">
+      <div>
+        <div class="filtros" id="filtros"></div>
+        <div id="mapa"></div>
+        <p class="nota">Fondo: clasificación del valle con Landsat (2001–2005 frente a 2021–2025).
+          <span class="cuadro" style="background:#1a9641"></span> estable
+          <span class="cuadro" style="background:#fdae61"></span> en declive
+          <span class="cuadro" style="background:#d7191c"></span> abandonada
+          <span class="cuadro" style="background:#2b83ba"></span> nueva.
+          Cada punto es una parcela de muestra de 30 m; haz clic para ver su historia.</p>
+      </div>
+      <div class="tarjeta" id="panel"></div>
+    </div>
+  </section>
+
+  <section id="tab-simulador">
+    <div class="dos">
+      <div class="tarjeta">
+        <h2>Condiciones de la parcela</h2>
+        <div class="contexto" id="s-contexto" hidden></div>
+        <div class="control"><label for="s-cultivo">Cultivo</label><select id="s-cultivo"></select></div>
+        <div class="control" id="c-previo"><label for="s-previo">Cultivo anterior en la rotación</label><select id="s-previo"></select></div>
+        <div class="control" id="c-cobertura"><label for="s-cobertura">Cultivo de cobertura entre hileras</label><select id="s-cobertura"></select></div>
+        <div class="control"><label for="s-ecw">Salinidad del agua de riego <b id="v-ecw"></b></label>
+          <input type="range" id="s-ecw" min="0.5" max="8" step="0.1" value="2"></div>
+        <div class="control"><label for="s-riego">Agua aplicada frente a lo que el cultivo pide <b id="v-riego"></b></label>
+          <input type="range" id="s-riego" min="50" max="150" step="5" value="100"></div>
+        <canvas id="campo" role="img" aria-label="Dibujo animado de la parcela simulada"></canvas>
+        <p class="nota" id="leyenda-campo">El dibujo ilustra el resultado: <b>tamaño y frutos</b> = índice de rendimiento · <b>hojas amarillas</b> = daño por sal · <b>plantas caídas y suelo agrietado</b> = falta de riego · <b>manchas blancas</b> = sal acumulada en el suelo.</p>
+        <p class="nota" id="nota-cultivo"></p>
+      </div>
+      <div class="tarjeta">
+        <h2>Resultado estimado</h2>
+        <div class="indice" id="r-indice"></div>
+        <p class="nota">Índice de rendimiento: 100 = el cultivo sin estrés de sal ni de agua. Estimado con modelos de la FAO; no es un pronóstico de tu cosecha.</p>
+        <div class="medidas" id="r-medidas"></div>
+        <ul class="avisos" id="r-avisos"></ul>
+        <h3>Con esta agua y este riego, así quedan los cultivos</h3>
+        <table id="r-tabla"></table>
+        <details class="base">
+          <summary>¿En qué se basa este simulador?</summary>
+          <ul>
+            <li><b>Pérdida por sal:</b> umbral y pendiente de tolerancia de cada cultivo (Maas y Hoffman; FAO Riego y Drenaje 29).</li>
+            <li><b>Sal que queda en el suelo:</b> depende de cuánta agua extra lava las sales (FAO 29).</li>
+            <li><b>Pérdida por falta de riego:</b> factor de respuesta al agua de cada cultivo (FAO 33); para el olivo, la curva de Moriana y otros (2003).</li>
+            <li><b>Agua que pide el cultivo:</b> método FAO 56 con el clima de NASA POWER para La Yarada.</li>
+            <li><b>Cultivo anterior leguminosa:</b> +20 %, promedio mundial de estudios de rotación.</li>
+            <li><b>Cultivo de cobertura:</b> leguminosa sembrada entre las hileras del olivar para cubrir el suelo y aportarle nitrógeno. Está estudiada en olivares mediterráneos (Junta de Andalucía, 2007; Rodrigues y otros, 2015); el riesgo conocido es que compite por agua con el olivo, por eso aquí suma agua y no suma cosecha.</li>
+          </ul>
+          <p class="nota">Son fórmulas publicadas aplicadas con el clima local. <b>No está calibrado con cosechas reales de La Yarada</b> y parte de los coeficientes está por verificar (ver «Datos y límites»). Sirve para comparar opciones, no para predecir una cosecha. El dibujo solo ilustra el resultado.</p>
+        </details>
+      </div>
+    </div>
+      <div class="tarjeta plan" id="plan"></div>
+  </section>
+
+  <section id="tab-datos">
+    <div class="dos">
+      <div class="tarjeta" id="d-modelo"></div>
+      <div class="tarjeta" id="d-fuentes"></div>
+    </div>
+  </section>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="sim.js"></script>
+<script src="granja.js"></script>
+<script src="plan.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
